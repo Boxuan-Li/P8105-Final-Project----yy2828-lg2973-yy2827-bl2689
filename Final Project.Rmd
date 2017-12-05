@@ -31,5 +31,6 @@ theme_update(legend.position = "bottom")
 ## Read and Clean the Dataset
 ```{r Read and clean}
 Ted.data <- read_csv("./data/TED.csv") %>%
-  clean_names()
+  clean_names() %>%
+  select(., everything(),-event, -film_date, -num_speaker, -related_talks, -name)
 ```
