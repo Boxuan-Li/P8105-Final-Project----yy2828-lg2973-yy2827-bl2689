@@ -1,0 +1,35 @@
+---
+title: "Final Project"
+author: "Boxuan Li"
+date: "12/5/2017"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  fig.width = 8,
+  fig.asp = .6,
+  out.width = "90%"
+)
+
+library(tidyverse)
+library(janitor)
+library(ggthemes)
+library(rnoaa)
+library(stringr)
+library(httr)
+library(rvest)
+library(tidytext)
+
+theme_set(theme_bw())
+theme_update(legend.position = "bottom")
+```
+
+## Read and Clean the Dataset
+```{r Read and clean}
+Ted.data <- read_csv("./data/TED.csv") %>%
+  clean_names()
+```
