@@ -18,10 +18,7 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(janitor)
 library(ggthemes)
-library(rnoaa)
 library(stringr)
-library(httr)
-library(rvest)
 library(tidytext)
 
 theme_set(theme_bw())
@@ -30,7 +27,25 @@ theme_update(legend.position = "bottom")
 
 ## Read and Clean the Dataset
 ```{r Read and clean}
-Ted.data <- read_csv("./data/TED.csv") %>%
+ted <- read_csv("./data/TED.csv") %>%
   clean_names() %>%
-  select(., everything(),-event, -film_date, -num_speaker, -related_talks, -name)
+  mutate(no = row_number()) %>% 
+  select(no, everything(),-event, -film_date, -num_speaker, -related_talks, -name)
+```
+
+
+### Tidy the *ratings* variable
+```{r}
+ratings = ted %>%
+  select(no, ratings) %>% 
+  mutate(ratings = substring(ratings,3, nchar(ratings)-2)) %>% 
+  mutate(ratings = str_split(ratings,"\\}, \\{")) %>% 
+  unnest(ratings) %>% 
+  mutate(rat.words = sub(".*name': '(.*?)',.*", "\\1", ratings),
+         rat.cnt = sub(".*'count': ", "", ratings))
+
+
+
+
+
 ```
