@@ -94,10 +94,11 @@ In this study, we follow a step-by-step analysis to reveal the association betwe
 ```{r}
 ## Tidy the "tags" variable.
 ted_topic = ted %>%
-  select(no, tags, views, year, month, day) %>%
-  separate(tags, into = "")
-  unnest_tokens(word, tags) %>%
-  rename(topic = word)
+  select(no, views, year, month, day, tags) %>%
+  mutate(tags = substr(tags,3,nchar(tags)-2),
+         tags = str_split(tags, "', '")) %>% 
+  unnest(tags) %>% 
+  rename(topic = tags)
 
 ## How many videos for each topic
 n_topic = ted_topic %>% 
