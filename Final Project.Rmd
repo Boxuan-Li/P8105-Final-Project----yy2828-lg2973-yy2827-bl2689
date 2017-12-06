@@ -18,9 +18,12 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(janitor)
 library(ggthemes)
+library(ggridges)
 library(stringr)
+library(forcats)
 library(tidytext)
 library(viridis)
+library(anytime)
 
 theme_set(theme_bw())
 theme_update(legend.position = "bottom")
@@ -34,8 +37,96 @@ ted <- read_csv("./data/TED.csv") %>%
   select(no, everything(),-event, -film_date, -num_speaker, -related_talks, -name)
 ```
 
+# Part 1 TED Topics
 
-### 3.3 Sentiment Analysis
+```{r}
+## Tidy the "published_date" variable. 
+## Convert UNIX timestamps into regular date form.
+ted = ted %>%
+  mutate(published_date = anydate(published_date)) %>%
+  separate(published_date, into = c("year", "month", "day"), sep = "-")
+## Tidy the "tags" variable.
+ted_topic = ted %>%
+  select(no, tags, views, year, month, day) %>%
+  unnest_tokens(word, tags) %>%
+  rename(topic = word)
+```
+
+We are interested in the topics TED talked most. The table and figure below show the top 10 topics with the most talks.
+```{r}
+## How many videos for each topic
+n_topic = ted_topic %>% 
+  group_by(topic) %>%
+  count() %>%
+  arrange(desc(n)) %>%
+  ungroup
+
+## filter top 10 topics with the most videos 
+top10_topic = head(n_topic, 10)
+knitr::kable(top10_topic, align = "c")
+## Visualize the result
+top10_topic %>%
+  mutate(topic = fct_reorder(topic, n)) %>%
+  ggplot(aes(x = topic, y = n, fill = topic)) +
+    geom_bar(stat = "identity") +
+    labs(
+      x = "TED Topic",
+      y = "Number of talks"
+    )
+```
+
+TED includes talks on `r count(distinct(n_topic))` different topics. The figure above demonstrates the most 10 talked topics. Obviously, *Technology* is the topic with the most `r n_topic[1,2]` talks.
+
+Also, we would like to explore the popuarity of topics. The figure below shows the the distribution of views for top 10 topics.
+```{r}
+## Visualize the distribution of views for top 10 topics.
+ted_topic %>%
+  filter(ted_topic$topic %in% top10_topic$topic) %>%
+  mutate(topic = fct_reorder(topic, views)) %>%
+  ggplot(aes(x = topic, y = views, fill = topic)) +
+    geom_violin() +
+    ylim(0, 5e+6) +
+    stat_summary(fun.y = median, geom = "point", size = 2) +
+    labs(
+      x = "Topic",
+      y = "Number of views for each video"
+    )
+```
+
+We find that all the distributions of views are heavily right skewed, which indicates that some of the videos are extremely popular. 
+We reordered the distributions by the median of views. Among the most talked 10 topics, culture and business had the highest median number of views. Therefore, what interests people most are talks related to culture and business.
+
+To further explore how TED talks change over time, we plot two related figures below.
+
+```{r}
+## Visualize the number of TED topics through the years.
+ted_topic %>%
+  filter(ted_topic$topic %in% top10_topic$topic) %>%
+  group_by(year, topic)%>%
+  count() %>%
+  ggplot(aes(x = year, y = n, group = topic, color = topic)) +
+    geom_line() +
+    labs(
+      x = "Year",
+      y = "Number of topics")
+
+## Visualize TED topics views through the years.
+ted_topic %>%
+  filter(ted_topic$topic %in% top10_topic$topic) %>%
+  ggplot(aes(x = year, y = views, fill = topic)) +
+    geom_bar(stat = "identity", position = "fill") +
+    labs(
+      x = "Year",
+      y = "Fraction")
+```
+
+The first figure above shows how many videos talking about top ten topics in each year. It seems that the topic "TEDx" are frequently used in 2012. TEDx was created in the spirit of TED's mission, "ideas worth spreading." It supports independent organizers who want to create a TED-like event in their own community. In March 2012, TED-Ed was launched, creating short video lessons aimed at educators, and April 2012 saw the debut of TED Radio Hour, a partnership that brings ideas and stories from TED Talks to public radio listeners. All of these projects may result in the increase of TEDx.
+In 2016, we also see a peak in the increase of topic talking frequency. There are several global events held in 2016, including "TED 2016 Dream", which is a week-long conference about ideas, happening February 15-19, 2016, in Vancouver, BC, Canada.
+
+The second figure above shows the fraction of views for top 10 topics through the years. We can see that culture have been viewed most in 2006 when the first six TED Talks were posted online. The topic "changes" drew more and more attention along the years.
+
+
+# Part 3 Sentiment Analysis
 (1) Tidy the *ratings* variable
 ```{r}
 ratings = ted %>%
