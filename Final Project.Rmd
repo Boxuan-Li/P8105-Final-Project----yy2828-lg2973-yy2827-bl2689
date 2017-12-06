@@ -225,4 +225,21 @@ speaker %>%
 
 From the above table, we find out that the most popular speaker occupation is writer, and totally 107 writers came and gave TED Talks. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.
 
+### Analysis on the distribution of viewer number in top ten speaker occupation
+```{r}
+speaker %>% 
+  filter(speaker_occupation %in% c("writer", "artist", "designer", "journalist", "entrepreneur", "inventor", "architect", "psychologist", "neuroscientist", "physicist")) %>% 
+  group_by(speaker_occupation) %>% 
+  ggplot(aes(x = speaker_occupation, y = views)) +
+  geom_boxplot(aes(fill = speaker_occupation), alpha = .9) +
+  ylim(0,7.5e+06) +
+  labs(
+    title = "The distribution of viewers in ten most popular speaker occupation",
+    x = "speaker occupation",
+    y = "views"
+  )
+```
+
+Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by others. We also find that each occupation has some extreme points. This is easy to understand because these talks may be given by the most famous people in that area or the topic is most focus of attention.  
+
 
