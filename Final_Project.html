@@ -420,6 +420,70 @@ rat_sent %&gt;%
   mutate(speaker_occupation = str_replace(speaker_occupation, &quot;author&quot;, &quot;writer&quot;))</code></pre>
 <p>We know from the dataset that in speaker_occupation variable, one speaker might have more than one occupation. We also find that the first occupation is the main occupation of the speaker which can best represents their main focus, so we clean the speaker_occupation variablt to leave only the first occupation in the data set. Also, we discover that there exists writer and author in this variable and they represent the same occupation, so we replace the author with writer.</p>
 </div>
+<div id="find-out-the-top-ten-speaker-occupation" class="section level3">
+<h3>Find out the top ten speaker occupation</h3>
+<pre class="r"><code>speaker %&gt;% 
+  group_by(speaker_occupation) %&gt;% 
+  summarize(n = n()) %&gt;% 
+  arrange(desc(n)) %&gt;% 
+  head(10) %&gt;% 
+  pander::pander()</code></pre>
+<table style="width:36%;">
+<colgroup>
+<col width="29%"></col>
+<col width="6%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">speaker_occupation</th>
+<th align="center">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">writer</td>
+<td align="center">107</td>
+</tr>
+<tr class="even">
+<td align="center">artist</td>
+<td align="center">46</td>
+</tr>
+<tr class="odd">
+<td align="center">designer</td>
+<td align="center">45</td>
+</tr>
+<tr class="even">
+<td align="center">journalist</td>
+<td align="center">40</td>
+</tr>
+<tr class="odd">
+<td align="center">entrepreneur</td>
+<td align="center">36</td>
+</tr>
+<tr class="even">
+<td align="center">inventor</td>
+<td align="center">36</td>
+</tr>
+<tr class="odd">
+<td align="center">architect</td>
+<td align="center">33</td>
+</tr>
+<tr class="even">
+<td align="center">psychologist</td>
+<td align="center">31</td>
+</tr>
+<tr class="odd">
+<td align="center">neuroscientist</td>
+<td align="center">30</td>
+</tr>
+<tr class="even">
+<td align="center">physicist</td>
+<td align="center">26</td>
+</tr>
+</tbody>
+</table>
+<p>From the above table, we find out that the most popular speaker occupation is writer, and totally 107 writers came and gave TED Talks. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.</p>
+</div>
 </div>
 
 

@@ -213,5 +213,16 @@ speaker = ted %>%
 ```
 We know from the dataset that in speaker_occupation variable, one speaker might have more than one occupation. We also find that the first occupation is the main occupation of the speaker which can best represents their main focus, so we clean the speaker_occupation variablt to leave only the first occupation in the data set. Also, we discover that there exists writer and author in this variable and they represent the same occupation, so we replace the author with writer.
 
+### Find out the top ten speaker occupation
+```{r}
+speaker %>% 
+  group_by(speaker_occupation) %>% 
+  summarize(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  head(10) %>% 
+  pander::pander()
+```
+
+From the above table, we find out that the most popular speaker occupation is writer, and totally 107 writers came and gave TED Talks. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.
 
 
