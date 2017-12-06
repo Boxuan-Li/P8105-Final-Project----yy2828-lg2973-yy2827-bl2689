@@ -23,6 +23,7 @@ library(forcats)
 library(tidytext)
 library(viridis)
 library(anytime)
+library(wordcloud)
 
 theme_set(theme_bw())
 theme_update(legend.position = "bottom")
@@ -89,10 +90,12 @@ In this study, we follow a step-by-step analysis to reveal the association betwe
 
 ### Results and Analysis
 1) The association between __Topic__ and __Popularity___.
+
 ```{r}
 ## Tidy the "tags" variable.
 ted_topic = ted %>%
   select(no, tags, views, year, month, day) %>%
+  separate(tags, into = "")
   unnest_tokens(word, tags) %>%
   rename(topic = word)
 
@@ -118,6 +121,19 @@ top10_topic %>%
 ```
 
 TED includes talks on `r count(distinct(n_topic))` different topics. The figure above demonstrates the most 10 talked topics. Obviously, *Technology* is the topic with the most `r n_topic[1,2]` talks.
+
+The TED topic cloud
+```{r warning=FALSE, message=FALSE}
+set.seed(1234)
+wordcloud(words = n_topic$topic, 
+          freq = n_topic$n, 
+          min.freq = 1,
+          max.words = 200, 
+          random.order = FALSE, 
+          rot.per = 0.35, 
+          colors = brewer.pal(8, "Dark2"))
+```
+
 
 Also, we would like to explore the popuarity of topics. The figure below shows the the distribution of views for top 10 topics.
 ```{r}
