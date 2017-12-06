@@ -200,5 +200,18 @@ top10_view = ted %>%
 
 ```
 
+### Tidy the *speaker_occupation* variable
+```{r, warning = FALSE}
+speaker = ted %>% 
+  separate(speaker_occupation, into = c("speaker_occupation", "remove"), sep = "/") %>% 
+  separate(speaker_occupation, into = c("speaker_occupation", "remove1"), sep = ",") %>% 
+  separate(speaker_occupation, into = c("speaker_occupation", "remove2"), sep = ";") %>% 
+  select(-remove, -remove1, -remove2) %>% 
+  mutate(speaker_occupation = str_to_lower(speaker_occupation)) %>% 
+  mutate(speaker_occupation = str_replace(speaker_occupation, "author", "writer"))
+
+```
+We know from the dataset that in speaker_occupation variable, one speaker might have more than one occupation. We also find that the first occupation is the main occupation of the speaker which can best represents their main focus, so we clean the speaker_occupation variablt to leave only the first occupation in the data set. Also, we discover that there exists writer and author in this variable and they represent the same occupation, so we replace the author with writer.
+
 
 
