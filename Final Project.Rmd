@@ -29,7 +29,8 @@ theme_set(theme_bw())
 theme_update(legend.position = "bottom")
 ```
 
-```{r Read and clean, message=FALSE, echo=FALSE, warning=FALSE}
+### Read and basically clean the dataset
+```{r Read and clean, message=FALSE, warning=FALSE}
 ted.data <- read_csv("./data/TED.csv")
 
 head(ted.data,10)
@@ -89,7 +90,7 @@ In this study, we follow a step-by-step analysis to reveal the association betwe
 
 
 ### Results and Analysis
-1) The association between __Topic__ and __Popularity___.
+1) The association between __Topic__ and __Popularity__.
 
 ```{r}
 ## Tidy the "tags" variable.
@@ -137,7 +138,7 @@ wordcloud(words = n_topic$topic,
 
 
 Also, we would like to explore the popuarity of topics. The figure below shows the the distribution of views for top 10 topics.
-```{r}
+```{r, warning=FALSE}
 ## Visualize the distribution of views for top 10 topics.
 ted_topic %>%
   filter(ted_topic$topic %in% top10_topic$topic) %>%
@@ -200,7 +201,7 @@ ratings = ted %>%
 ```
 
 (2) Perform sentiment analysis
-```{r}
+```{r, message=FALSE}
 ### read the sentiment dataset from 'bing'
 bing_sent = get_sentiments("bing")
 
@@ -300,5 +301,21 @@ speaker %>%
 ```
 
 Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by others. We also find that each occupation has some extreme points. This is easy to understand because these talks may be given by the most famous people in that area or the topic is most focus of attention.  
+
+4) Linear model building
+```{r categarize the year variable}
+ted.lm <- select(rat_sent, no, duration, languages, num_speaker, year, views, sentiment) %>%
+  mutate(year = as.numeric(year),
+         year = ifelse(year < 2010, "before 2010", 
+                       ifelse(year >= 2010 & year < 2015, "between 2010 and 2015", "after 2015")),
+         year = factor(year, levels = c("before 2010","between 2010 and 2015","after 2015")))
+
+lm.result <- lm(views ~ sentiment + year + duration + languages + num_speaker, data = ted.lm)
+
+summary(lm.result)
+broom::tidy(lm.result)
+```
+
+In this model, we set the arm "before 2010" as referece from the categorical variable "year". From the linear modelling result, it can be discovered that only the estimated coefficients for the number of speaker ("num_speaker") and the categorical arm "between 2010 and 2015" are not significant at 0.05 significance level due to the large p-value. Therefore, the "num_speaker" is probably not associated with the outcome (number of views). Since the arm "between 2010 and 2015" is one level within the categorical variable, it cannot be excluded from the model. However, compared with reference, the arm "after 2015" presents significant postive estimate, indicating the positive mean difference of views after 2015 relative to years before 2010. In other words, TED talks published after 2015 are generally more popular than those  published before 2010. At the same time, it can be noticed that language and duration are also strongly associated with the number of views. Specifically, in terms of "languages", the mean number of views will increase by 5.835e^4 as the number of languages in which the talk is available increases by 1 adjusted by other covariates. As expected, sentiment plays an important role in the model, implying that it is the reflection of popularity for a TED talk as well. Basically, the adjusted R^2 is around 60%, suggesting 60% variation in the number of views can be explained by the variation in those covariates. This values is good enough to conlcude the the points of outcome and predictors are well fitted on the linear model. 
 
 ### Conclusion
