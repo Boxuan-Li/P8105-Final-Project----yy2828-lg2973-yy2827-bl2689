@@ -29,8 +29,9 @@ theme_set(theme_bw())
 theme_update(legend.position = "bottom")
 ```
 
-### Read and basically clean the dataset
-```{r Read and clean, message=FALSE, warning=FALSE}
+
+```{r Read and clean, message=FALSE, warning=FALSE, include = FALSE}
+## Read and basically clean the dataset
 ted.data <- read_csv("./data/TED.csv")
 
 head(ted.data,10)
@@ -52,7 +53,35 @@ ted = ted %>%
 
 TED (Technology, Entertainment, Design) is an organization that posts talks online for free dissemination. TED was founded in 1984 as a conference and has developed a lot so far. And nowadays, it has become the symbol of idea gathering, rooted into our life everywhere around. Even though one barely hears of the TED talk, its famous slogan of "ideas worth spreading" and the typical starry sky at the start of each talk should be probably noticed. It is always inspiring to enjoy a TED talk after work or study in our daily life and every fan of TED talk must have his or her own evaluation criteria to rate TED talks with multifarious topics. Hence, these talks, full of wisdom, gain abundant reviews and comments from viewers, which can serve as implication of both popularity of the talks and those viewers' interests.
 
-Members in our group have always been fascinated by TED talks and the marvelous diversity of the contents. We tend to focus on topics that we are interested in and share our thoughts about it. An idea therefore came to our mind that we can try to explore what exactly affects the popularity of a particular TED talk by combining the skills out of the data science course and some strategies to operate the data obtained. 
+Members in our group have always been fascinated by TED talks and the marvelous diversity of the contents (see the fantastic topic cloud below). We tend to focus on topics that we are interested in and share our thoughts about it. An idea therefore came to our mind that we can try to explore what exactly affects the popularity of a particular TED talk by combining the skills out of the data science course and some strategies to operate the data obtained. 
+
+```{r warning=FALSE, message=FALSE}
+## Create a word cloud for ted topics.
+## Tidy the "tags" variable.
+ted_topic = ted %>%
+  select(no, views, year, month, day, tags) %>%
+  mutate(tags = substr(tags,3,nchar(tags)-2),
+         tags = str_split(tags, "', '")) %>% 
+  unnest(tags) %>% 
+  rename(topic = tags)
+
+## The frequence of appearance for each topic
+n_topic = ted_topic %>% 
+  group_by(topic) %>%
+  count() %>%
+  arrange(desc(n)) %>%
+  ungroup
+
+## Create the word cloud
+set.seed(1234)
+wordcloud(words = n_topic$topic, 
+          freq = n_topic$n, 
+          min.freq = 1,
+          max.words = 200, 
+          random.order = FALSE, 
+          rot.per = 0.35, 
+          colors = brewer.pal(8, "Dark2"))
+```
 
 In this study, the collected dataset that covers the overall information about `r dim(ted.data)[1]` TED talks, hosted on the official TED.com website from June 26th, 2006 to September 21st, 2017. In this dataset, there are `r dim(ted.data)[2]` variables, including number of views, number of comments, description of each talk, etc. Key variables are summarized as follows,
 
@@ -91,25 +120,12 @@ In this study, we follow a step-by-step analysis to reveal the association betwe
 
 ### Results and Analysis
 1) The association between __Topic__ and __Popularity__
+
+In this section, we try to find out how diverse topics affect the popularity of TED talks.  
+
 ```{r}
-## Tidy the "tags" variable.
-ted_topic = ted %>%
-  select(no, views, year, month, day, tags) %>%
-  mutate(tags = substr(tags,3,nchar(tags)-2),
-         tags = str_split(tags, "', '")) %>% 
-  unnest(tags) %>% 
-  rename(topic = tags)
-
-## How many videos for each topic
-n_topic = ted_topic %>% 
-  group_by(topic) %>%
-  count() %>%
-  arrange(desc(n)) %>%
-  ungroup
-
-## filter top 10 topics with the most videos 
+## filter top 10 topics with the most talks 
 top10_topic = head(n_topic, 10)
-knitr::kable(top10_topic, align = "c")
 ## Visualize the result
 top10_topic %>%
   mutate(topic = fct_reorder(topic, n)) %>%
@@ -121,18 +137,7 @@ top10_topic %>%
     )
 ```
 
-TED includes talks on `r count(distinct(n_topic))` different topics. The figure above demonstrates the most 10 talked topics. Obviously, *Technology* is the topic with the most `r n_topic[1,2]` talks.
-
-```{r warning=FALSE, message=FALSE}
-set.seed(1234)
-wordcloud(words = n_topic$topic, 
-          freq = n_topic$n, 
-          min.freq = 1,
-          max.words = 200, 
-          random.order = FALSE, 
-          rot.per = 0.35, 
-          colors = brewer.pal(8, "Dark2"))
-```
+TED includes talks on `r count(distinct(n_topic))` different topics. The figure above demonstrates the most 10 talked topics. Obviously, *Technology* is the most talked topic with `r n_topic[1,2]` talks.
 
 ```{r, warning=FALSE}
 ## Visualize the distribution of views for top 10 topics.
@@ -149,8 +154,7 @@ ted_topic %>%
     )
 ```
 
-This figure shows the the distribution of views for top 10 topics. It can be found that all the distributions of views are heavily right skewed, which indicates that some of the videos are extremely popular. We reordered the distributions by the median of views. Among the most talked 10 topics, culture and business had the highest median number of views. Therefore, what interests people most may be culture or business-related talks.
-
+This figure shows the distribution of views for top 10 topics. It can be found that all the distributions of views are heavily right skewed, which indicates that some of the talks are extremely popular. We reordered the distributions by the median of views. Among the most talked 10 topics, culture and business had the highest median number of views. Although TED talks about technology the most, audience show more interest in culture or business related talks. 
 
 ```{r}
 ## Visualize the number of TED topics through the years.
@@ -174,10 +178,9 @@ ted_topic %>%
       y = "Fraction")
 ```
 
-The first figure above shows how many videos talk about top ten topics in each year. It seems that the topic "TEDx" are frequently used in 2012. TEDx was created in the spirit of TED's mission, "ideas worth spreading." It supports independent organizers who want to create a TED-like event in their own community. In March 2012, TED-Ed was launched, creating short video lessons aimed at educators, and April 2012 saw the debut of TED Radio Hour, a partnership that brings ideas and stories from TED Talks to public radio listeners. All of these projects may result in the increase of TEDx. In 2016, we also see a peak in the increase of topic talking frequency. There are several global events held in 2016, including "TED 2016 Dream", which is a week-long conference about ideas, happening February 15-19, 2016, in Vancouver, BC, Canada.
+The first figure above shows how many videos talking about top 10 topics in each year. It seems that the topic "TEDx" are frequently mentioned in 2012. TEDx is a program supporting independent organizers who want to create a TED-like event in their own community. In 2012, a week-long event-TEDx Summit was held by the Doha Film Institute, the inaugural event gathered TEDx organizers from around the world for workshops, talks and cultural activities. It may result in the increase of TEDx talks in 2012. In 2016, we also see a peak in the increase of all the talks. There are several global events held in 2016, including "TED 2016 Dream", which is a conference about ideas, happening February 15-19, 2016, in Vancouver, BC, Canada.
 
-The second figure above shows the fraction of views for top 10 topics through the years. We can see that culture have been viewed most in 2006 when the first six TED Talks were posted online. The topic "health" is drawing more and more attention along the years.
-
+The second figure above shows the trends in the share of top 10 topics along the years. We can see that culture related talks have been viewed most in 2006 when the first six TED Talks were posted online. However, talks on culture have witnessed a dip, decreasing steadily since 2013. In contrast, the topic innovation and health are drawing more and more attention along the years.
 
 2) The association between __Speaker__ and __Popularity__.
 ```{r, warning = FALSE}
@@ -212,10 +215,7 @@ speaker %>%
   labs(
     title = "visualization of the ten top speakers",
     x = "main speaker",
-    y = "number of talks"
-  )
-
-
+    y = "number of talks")
 ```
 
 From the above table, we find out that statistician Hans Rosling gave most TED Talks among all the TED speakers, totally 9 Talks. As a professor of global health at Sweden's Karolinska Institute, his current work focuses on dispelling common myths about the so-called developing world, which (he points out) is no longer worlds away from the West. Then it followed by biologist Juan Enriquez, who gave 7 Talks. The range of the number of TED Talks given by top ten speaker is from 5 to 9, probably indicates that these speakers are very popular among viewers and they give TED Talks frequently.
@@ -246,7 +246,6 @@ speaker %>%
 ```
 
 Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by speakers with other occupations. In addtion, it can be discovered that there are always some extreme points for each occupation. It is easy to be understood because these talks may be given by the most famous or authoritative people in that field or the content of that talk is relevant to the hottest foucs at that time. 
-
 
 3) __Sentiment analysis__
 
