@@ -9,6 +9,8 @@ output:
 ```{r, include=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
+  warning = FALSE,
+  message = FALSE,
   fig.width = 8,
   fig.asp = .6,
   out.width = "90%"
@@ -24,6 +26,7 @@ library(tidytext)
 library(viridis)
 library(anytime)
 library(wordcloud)
+library(plotly)
 
 theme_set(theme_bw())
 theme_update(legend.position = "bottom")
@@ -116,7 +119,7 @@ In this study, we follow a step-by-step analysis to reveal the association betwe
 
 3) The "ratings" variable incorporates abundant information about the reviews on each TED talk from viewers. We noticed that each talk may have different types of reviews with varying counts. It would be interesting to conduct a sentiment analysis to the rating. In this study, the "ratings" will be splitted by certain symbols to extract each type of review for each TED talk at first. Then sentiment of that talk will be calculated based on the positiveness of each review after combininig with "bing" and the counts. In addition, considering the specific content in the "ratings" variable, some positive word, such as "fascinating", "convincing" or "interesting", may also reflect the popularity of that talk. We therefore compare the top 10 talks with most views (most popular) with the top 10 talks with largest positive sentiments furthermore to check the level of match and assess whether sentiment really can reflect the popularity of TED talks. 
 
-4) After foregoing anaylysis, we would like to take other covariates that are not invovled into consideration. Hence, a linear model will be fitted using the formula _views~"duration"+"languages"+"year"(categorized),"num_speaker"+"sentiment"_ in order to explore the whether there will be a linear relationship between the popularity and those covariates. In this case, "year" is categorized into three arms, "before 2010" (2006-2009), "between 2010 and 2015" (2010-2014) and "after 2015" (2015-2017) and the first arm will serve as reference level.
+4) After foregoing anaylysis, we would like to take other covariates that are not invovled into consideration. Hence, we will further explore the linear realtionship between the number of views for each talk and other predictors including duration, languages translated, years, number of speakers and sentiment ratings to show factors that may affect the popularity. In this case, "year" is categorized into three arms, "before 2010" (2006-2009), "between 2010 and 2015" (2010-2014) and "after 2015" (2015-2017) and the first arm will serve as reference level.
 
 ### Results and Analysis
 1) The association between __Topic__ and __Popularity__
@@ -127,55 +130,61 @@ In this section, we try to find out how diverse topics affect the popularity of 
 ## filter top 10 topics with the most talks 
 top10_topic = head(n_topic, 10)
 ## Visualize the result
-top10_topic %>%
+gg_top10 = top10_topic %>%
   mutate(topic = fct_reorder(topic, n)) %>%
   ggplot(aes(x = topic, y = n, fill = topic)) +
-    geom_bar(stat = "identity") +
-    labs(
-      x = "TED Topic",
-      y = "Number of talks"
-    )
+    geom_bar(stat = "identity")
+
+ggplotly(gg_top10) %>% 
+  layout(xaxis=list(title = "TED Topic"),
+         yaxis=list(title = "Number of talks"),
+         title="Top10 most talked topics")
 ```
 
 TED includes talks on `r count(distinct(n_topic))` different topics. The figure above demonstrates the most 10 talked topics. Obviously, *Technology* is the most talked topic with `r n_topic[1,2]` talks.
 
 ```{r, warning=FALSE}
 ## Visualize the distribution of views for top 10 topics.
-ted_topic %>%
+gg_talks_topics = ted_topic %>%
   filter(ted_topic$topic %in% top10_topic$topic) %>%
   mutate(topic = fct_reorder(topic, views)) %>%
   ggplot(aes(x = topic, y = views, fill = topic)) +
     geom_violin() +
     ylim(0, 5e+6) +
-    stat_summary(fun.y = median, geom = "point", size = 2) +
-    labs(
-      x = "Topic",
-      y = "Number of views for each video"
-    )
+    stat_summary(fun.y = median, geom = "point", size = 2)
+
+ggplotly(gg_talks_topics) %>% 
+  layout(xaxis=list(title = "Topic"),
+         yaxis=list(title = "Number of views for each video"),
+         title="Views for the top10 topics")
 ```
 
 This figure shows the distribution of views for top 10 topics. It can be found that all the distributions of views are heavily right skewed, which indicates that some of the talks are extremely popular. We reordered the distributions by the median of views. Among the most talked 10 topics, culture and business had the highest median number of views. Although TED talks about technology the most, audience show more interest in culture or business related talks. 
 
 ```{r}
 ## Visualize the number of TED topics through the years.
-ted_topic %>%
+gg_talks_years = ted_topic %>%
   filter(ted_topic$topic %in% top10_topic$topic) %>%
   group_by(year, topic)%>%
   count() %>%
   ggplot(aes(x = year, y = n, group = topic, color = topic)) +
-    geom_line() +
-    labs(
-      x = "Year",
-      y = "Number of talks")
+    geom_line() 
+
+ggplotly(gg_talks_years) %>% 
+  layout(xaxis=list(title = "Year"), 
+         yaxis=list(title = "Number of talks"),
+         title = "Talks of top10 topics across years")
 
 ## Visualize TED topics views through the years.
-ted_topic %>%
+gg_frac_year = ted_topic %>%
   filter(ted_topic$topic %in% top10_topic$topic) %>%
   ggplot(aes(x = year, y = views, fill = topic)) +
-    geom_bar(stat = "identity", position = "fill") +
-    labs(
-      x = "Year",
-      y = "Fraction")
+    geom_bar(stat = "identity", position = "fill")
+
+ggplotly(gg_frac_year) %>% 
+  layout(xaxis=list(title="Year"),
+         yaxis=list(title="Fraction"),
+         title="Fraction of topics across years")
 ```
 
 The first figure above shows how many videos talking about top 10 topics in each year. It seems that the topic "TEDx" are frequently mentioned in 2012. TEDx is a program supporting independent organizers who want to create a TED-like event in their own community. In 2012, a week-long event-TEDx Summit was held by the Doha Film Institute, the inaugural event gathered TEDx organizers from around the world for workshops, talks and cultural activities. It may result in the increase of TEDx talks in 2012. In 2016, we also see a peak in the increase of all the talks. There are several global events held in 2016, including "TED 2016 Dream", which is a conference about ideas, happening February 15-19, 2016, in Vancouver, BC, Canada.
@@ -195,13 +204,6 @@ speaker = ted %>%
 ```
  
 ```{r}
-speaker %>% 
-  group_by(main_speaker) %>% 
-  summarize(n = n()) %>% 
-  arrange(desc(n)) %>% 
-  head(10) %>% 
-  pander::pander()
-
 speaker %>% 
   group_by(main_speaker) %>% 
   summarize(n = n()) %>% 
@@ -232,17 +234,17 @@ speaker %>%
 Based on the results in the table above, most speakers attending the TED talks are writer. Totally 107 writers came and gave TED Talks. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.
 
 ```{r, message=FALSE, warning=FALSE}
-speaker %>% 
+gg_views_occ = speaker %>% 
   filter(speaker_occupation %in% c("writer", "artist", "designer", "journalist", "entrepreneur", "inventor", "architect", "psychologist", "neuroscientist", "physicist")) %>% 
   mutate(speaker_occupation = fct_reorder(speaker_occupation, views)) %>% 
   ggplot(aes(x = speaker_occupation, y = views)) +
   geom_boxplot(aes(fill = speaker_occupation), alpha = .9) +
-  ylim(0,7.5e+06) +
-  labs(
-    title = "The distribution of viewers in ten most popular speaker occupation",
-    x = "speaker occupation",
-    y = "views"
-  )
+  ylim(0,7.5e+06)
+
+ggplotly(gg_views_occ) %>% 
+  layout(title="Views for talks from top10 speaker occupations",
+         yaxis=list(title="Views"),
+         xaxis=list(title="Speaker occupation"))
 ```
 
 Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by speakers with other occupations. In addtion, it can be discovered that there are always some extreme points for each occupation. It is easy to be understood because these talks may be given by the most famous or authoritative people in that field or the content of that talk is relevant to the hottest foucs at that time. 
@@ -290,7 +292,7 @@ rat_sent %>%
     scale_color_viridis()
 
 ### try the cube root to reduce skewness
-rat_sent %>% 
+gg_trans_sent = rat_sent %>% 
   mutate(no = factor(no),
          no = fct_reorder(no, sentiment),
          cubert = ifelse(sentiment > 0, sentiment^(1/3), -(-sentiment)^(1/3))) %>% 
@@ -299,9 +301,11 @@ rat_sent %>%
     theme(axis.title.x = element_blank(),
           axis.text.x = element_blank(),
           axis.ticks.x = element_blank()) + 
-    ylab("cube root of sentiment") +
     scale_fill_viridis() +
     scale_color_viridis()
+
+ggplotly(gg_trans_sent) %>% 
+  layout(yaxis=list(title="Cube root of sentiment"))
 ```
 
 Here in the sentiment analysis, first we extract the sentiment words and the corresponding counts that are nested in the variable *ratings* for each observation, and assign them to two new variables *rat.words* and *rat.cnt*. Then we match the rating words (*rat.words*) with the sentiments dataset from 'bing', defining the rat.words as 'positive' or 'negative'. For each inspection number(*no*), we calculate the difference of sum of positive count and sum of negative count and use it as the sentiment score for this observation. 
@@ -317,28 +321,38 @@ top10_view = ted %>%
   arrange(desc(views)) %>% 
   head(10) 
 
-match <- bind_cols(top10_largest_sentiment = top10_sent$no,
-                   top10_most_views = top10_view$no)
-match
+match = bind_cols(top10_largest_sentiment = top10_sent$no,
+                   top10_most_views = top10_view$no) %>% pander::pander()
 ```
 
 In this table, the top 10 TED talks with largest positive sentiment and most views are presented separately in two columns. With different rank though, there are five overlapped talks in the two columns, i.e. the talks 1,1347,838,678 and 202. To some extent, it verifies the foregoing speculation that the sentiment can reflect the popularity as well. More specifically, talks with large sentiment values, indicating that people give positive comments on those talks, tend to be popular with large amount of views.   
 
 4) __Linear model building__ 
 ```{r categarize the year variable}
-ted.lm <- select(rat_sent, no, duration, languages, num_speaker, year, views, sentiment) %>%
+ted.lm = select(rat_sent, no, duration, languages, num_speaker, year, views, sentiment) %>%
   mutate(year = as.numeric(year),
          year = ifelse(year < 2010, "before 2010", 
                        ifelse(year >= 2010 & year < 2015, "between 2010 and 2015", "after 2015")),
          year = factor(year, levels = c("before 2010","between 2010 and 2015","after 2015")))
 
-lm.result <- lm(views ~ sentiment + year + duration + languages + num_speaker, data = ted.lm)
+model1 = lm(views ~ sentiment + year + duration + languages + num_speaker, data = ted.lm)
 
-summary(lm.result)
-broom::tidy(lm.result)
+summary(model1) %>% 
+  broom::tidy() %>% 
+  pander::pander()
 ```
 
-In this model, we set the arm "before 2010" from the categorical variable "year" as the reference. From the linear modelling result, it can be discovered that only the estimated coefficients for the number of speaker ("num_speaker") is not significant at 0.05 significance level due to the large p-value. Therefore, we can conclude that there is no significant linear association between the outcome (number of views) and the number of speakers, adjusted for other covariates in the model. 
+In this model, we set the arm "before 2010" from the categorical variable "year" as the reference. From the linear modelling result, it can be discovered that only the estimated coefficients for the number of speaker ("num_speaker") is not significant at 0.05 significance level due to the large p-value. Therefore, we can conclude that there is no significant linear association between the outcome (number of views) and the number of speakers, adjusted for other covariates in the model. Then we drop the *num_speaker* variable and refit the model.
+
+```{r}
+update(model1, .~. -num_speaker) %>%
+  summary() %>% 
+  broom::tidy() %>% 
+  pander::pander()
+```
+
+The final model is \[Views = -1.13*10^6 + 625.1 * Sentiment + 5.62*10^4 * I\{Year \ between \ 2010 \ and \ 2015\}\\
++ 4.76*10^5 * I\{Year \ after \ 2015\}  + 369.4 * Duration + 5.83*10^4 * Languages\]
 
 Compared with the reference, the arm "after 2015" presents significant postive estimate, indicating the positive mean difference of number of views for TED talks published after 2015 relative to the number of views for those published before 2010. In other words, TED talks published after 2015 are more popular than those published before 2010. At the same time, it can be noticed that language and duration are also strongly associated with the number of views. Specifically, in terms of "languages", the mean number of views will increase by 58350 as the number of languages in which the talk is available increases by 1 adjusted for other covariates. As expected, sentiment plays an important role in the model, implying that it is exactly reflection of popularity for TED talks to some extent. Basically, the adjusted R-square is around 60%, suggesting 60% variation in the number of views can be explained by the variation in those covariates. This values is good enough to conlcude that points representing the outcome (number of views) and predictors are well fitted on the linear model. 
 
