@@ -210,7 +210,7 @@ speaker %>%
   geom_col(aes(fill = main_speaker)) +
   coord_flip() +
   labs(
-    title = "visualization of the ten top speaker occupation",
+    title = "visualization of the ten top speakers",
     x = "main speaker",
     y = "number of talks"
   )
@@ -218,7 +218,7 @@ speaker %>%
 
 ```
 
-From the above table, we find out that statistician Hans Rosling gave most TED Talks among all the TED speakers, totally 9 Talks. As a professor of global health at Sweden's Karolinska Institute, his current work focuses on dispelling common myths about the so-called developing world, which (he points out) is no longer worlds away from the West. Then followed by biologist Juan Enriquez, who gave 7 Talks. The range of the number of TED Talks given by top ten speaker is from 5 to 9, probably indicates that these speakers are very popular among viewers and they give TED Talks frequently.
+From the above table, we find out that statistician Hans Rosling gave most TED Talks among all the TED speakers, totally 9 Talks. As a professor of global health at Sweden's Karolinska Institute, his current work focuses on dispelling common myths about the so-called developing world, which (he points out) is no longer worlds away from the West. Then it followed by biologist Juan Enriquez, who gave 7 Talks. The range of the number of TED Talks given by top ten speaker is from 5 to 9, probably indicates that these speakers are very popular among viewers and they give TED Talks frequently.
 
 ```{r}
 speaker %>% 
@@ -234,7 +234,7 @@ Based on the results in the table above, most speakers attending the TED talks a
 ```{r, message=FALSE, warning=FALSE}
 speaker %>% 
   filter(speaker_occupation %in% c("writer", "artist", "designer", "journalist", "entrepreneur", "inventor", "architect", "psychologist", "neuroscientist", "physicist")) %>% 
-  group_by(speaker_occupation) %>% 
+  mutate(speaker_occupation = fct_reorder(speaker_occupation, views)) %>% 
   ggplot(aes(x = speaker_occupation, y = views)) +
   geom_boxplot(aes(fill = speaker_occupation), alpha = .9) +
   ylim(0,7.5e+06) +
