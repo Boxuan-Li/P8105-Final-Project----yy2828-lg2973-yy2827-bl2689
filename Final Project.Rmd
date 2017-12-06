@@ -190,7 +190,35 @@ speaker = ted %>%
   mutate(speaker_occupation = str_replace(speaker_occupation, "author", "writer"))
 
 ```
+ 
+```{r}
+speaker %>% 
+  group_by(main_speaker) %>% 
+  summarize(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  head(10) %>% 
+  pander::pander()
 
+speaker %>% 
+  group_by(main_speaker) %>% 
+  summarize(n = n()) %>% 
+  arrange(desc(n)) %>% 
+  head(10) %>% 
+  ungroup()%>% 
+  mutate(main_speaker = fct_reorder(main_speaker, n)) %>%
+  ggplot(aes(x = main_speaker, y = n)) +
+  geom_col(aes(fill = main_speaker)) +
+  coord_flip() +
+  labs(
+    title = "visualization of the ten top speaker occupation",
+    x = "main speaker",
+    y = "number of talks"
+  )
+
+
+```
+
+From the above table, we find out that statistician Hans Rosling gave most TED Talks among all the TED speakers, totally 9 Talks. As a professor of global health at Sweden's Karolinska Institute, his current work focuses on dispelling common myths about the so-called developing world, which (he points out) is no longer worlds away from the West. Then followed by biologist Juan Enriquez, who gave 7 Talks. The range of the number of TED Talks given by top ten speaker is from 5 to 9, probably indicates that these speakers are very popular among viewers and they give TED Talks frequently.
 
 ```{r}
 speaker %>% 
