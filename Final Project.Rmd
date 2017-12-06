@@ -79,19 +79,18 @@ Based on the dataset, there are some points expected to be explored in this stud
 
 ### Methods
 
-In this study, we follow a step-by-step analysis to reveal the association between the popularity and other variables. And the popularity of one TED talk is represented by the number of views ("views" variable).
+In this study, we follow a step-by-step analysis to reveal the association between the popularity and other variables. And the popularity of one TED talk is represented by the number of views ("views" variable). And most analyses involve the operation on strings within the dataset.
 
-1) Topic (or theme) of a TED talk is the first variable whose association with popularity will be evalueated since mostly viewers may prefer the TED talks with topics that they like. In this case, the topic of each TED talk can be extracted primarily from the "tag" variable for each TED talk. Furthermore, the topic of each TED talk can be summarized. In terms of those TED talks with multiple tagged topics, all topics are kept since it is realistic that one talk can be classified into various themes. At last, the most frequently appeared topics are ranked out with tables and figures made to show the top 10 topics with the most talks.
+1) Topic (or theme) of a TED talk is the first variable whose association with popularity will be evalueated since mostly viewers may prefer the TED talks with topics that they like. In this case, the topic of each TED talk can be extracted primarily from the "tag" variable for each TED talk. Furthermore, the topic of each TED talk can be summarized. In terms of those TED talks with multiple tagged topics, all topics are kept since it is realistic that one talk can be classified into various themes. At last, the most frequently appeared topics are ranked out with tables and figures made to show the top 10 topics with the most talks and the change of the favorite topics over time is also plotted.
 
-2)
+2) To explore the connection of popularity of a TED talk with the its speaker, we find out the top ten speaker occupations with most views using similar strategies to the topic analysis. In this part, we realized that some tems of occupation almost have the same meaning, i.e. "author" and "writer", which appear in the dataset very frequently. Therefore, we decided to unify the occupation into "writer" in this case. It can also be noticed that one speaker may have more than one occupation, among which the first occupation is always the main occupation of the speaker, best representing his or her main focus. So the "speaker_occupation" variable is cleaned, leaving only the first occupation in the dataset. The association between TED talks' popularity (number of views) and the occupation of speakers will be presented using a boxplot.
 
+3) The "ratings" variable incorporates abundant information about the reviews on each TED talk from viewers. We noticed that each talk may have different types of reviews with varying counts. It would be interesting to conduct a sentiment analysis to the rating. In this study, the "ratings" will be splitted by certain symbols to extract each type of review for each TED talk at first. Then sentiment of that talk will be calculated based on the positiveness of each review after combininig with "bing" and the counts. In addition, considering the specific content in the "ratings" variable, some positive word, such as "fascinating", "convincing" or "interesting", may also reflect the popularity of that talk. We therefore compare the top 10 talks with most views (most popular) with the top 10 talks with largest positive sentiments furthermore to check the level of match and assess whether sentiment really can reflect the popularity of TED talks. 
 
-
-
+4) After foregoing anaylysis, we would like to take other covariates that are not invovled into consideration. Hence, a linear model will be fitted using the formula _views~"duration"+"languages"+"year"(categorized),"num_speaker"+"sentiment"_ in order to explore the whether there will be a linear relationship between the popularity and those covariates. In this case, "year" is categorized into three arms, "before 2010" (2006-2009), "between 2010 and 2015" (2010-2014) and "after 2015" (2015-2017) and the first arm will serve as reference level.
 
 ### Results and Analysis
-1) The association between __Topic__ and __Popularity__.
-
+1) The association between __Topic__ and __Popularity__
 ```{r}
 ## Tidy the "tags" variable.
 ted_topic = ted %>%
@@ -124,7 +123,6 @@ top10_topic %>%
 
 TED includes talks on `r count(distinct(n_topic))` different topics. The figure above demonstrates the most 10 talked topics. Obviously, *Technology* is the topic with the most `r n_topic[1,2]` talks.
 
-The TED topic cloud
 ```{r warning=FALSE, message=FALSE}
 set.seed(1234)
 wordcloud(words = n_topic$topic, 
@@ -136,8 +134,6 @@ wordcloud(words = n_topic$topic,
           colors = brewer.pal(8, "Dark2"))
 ```
 
-
-Also, we would like to explore the popuarity of topics. The figure below shows the the distribution of views for top 10 topics.
 ```{r, warning=FALSE}
 ## Visualize the distribution of views for top 10 topics.
 ted_topic %>%
@@ -153,10 +149,8 @@ ted_topic %>%
     )
 ```
 
-We find that all the distributions of views are heavily right skewed, which indicates that some of the videos are extremely popular. 
-We reordered the distributions by the median of views. Among the most talked 10 topics, culture and business had the highest median number of views. Therefore, what interests people most are talks related to culture and business.
+This figure shows the the distribution of views for top 10 topics. It can be found that all the distributions of views are heavily right skewed, which indicates that some of the videos are extremely popular. We reordered the distributions by the median of views. Among the most talked 10 topics, culture and business had the highest median number of views. Therefore, what interests people most may be culture or business-related talks.
 
-To further explore how TED talks change over time, we plot two related figures below.
 
 ```{r}
 ## Visualize the number of TED topics through the years.
@@ -168,7 +162,7 @@ ted_topic %>%
     geom_line() +
     labs(
       x = "Year",
-      y = "Number of topics")
+      y = "Number of talks")
 
 ## Visualize TED topics views through the years.
 ted_topic %>%
@@ -180,14 +174,54 @@ ted_topic %>%
       y = "Fraction")
 ```
 
-The first figure above shows how many videos talking about top ten topics in each year. It seems that the topic "TEDx" are frequently used in 2012. TEDx was created in the spirit of TED's mission, "ideas worth spreading." It supports independent organizers who want to create a TED-like event in their own community. In March 2012, TED-Ed was launched, creating short video lessons aimed at educators, and April 2012 saw the debut of TED Radio Hour, a partnership that brings ideas and stories from TED Talks to public radio listeners. All of these projects may result in the increase of TEDx.
-In 2016, we also see a peak in the increase of topic talking frequency. There are several global events held in 2016, including "TED 2016 Dream", which is a week-long conference about ideas, happening February 15-19, 2016, in Vancouver, BC, Canada.
+The first figure above shows how many videos talk about top ten topics in each year. It seems that the topic "TEDx" are frequently used in 2012. TEDx was created in the spirit of TED's mission, "ideas worth spreading." It supports independent organizers who want to create a TED-like event in their own community. In March 2012, TED-Ed was launched, creating short video lessons aimed at educators, and April 2012 saw the debut of TED Radio Hour, a partnership that brings ideas and stories from TED Talks to public radio listeners. All of these projects may result in the increase of TEDx. In 2016, we also see a peak in the increase of topic talking frequency. There are several global events held in 2016, including "TED 2016 Dream", which is a week-long conference about ideas, happening February 15-19, 2016, in Vancouver, BC, Canada.
 
-The second figure above shows the fraction of views for top 10 topics through the years. We can see that culture have been viewed most in 2006 when the first six TED Talks were posted online. The topic "changes" drew more and more attention along the years.
+The second figure above shows the fraction of views for top 10 topics through the years. We can see that culture have been viewed most in 2006 when the first six TED Talks were posted online. The topic "health" is drawing more and more attention along the years.
 
-2)
 
-(1) Tidy the *ratings* variable
+2) The association between __Speaker__ and __Popularity__.
+```{r, warning = FALSE}
+speaker = ted %>% 
+  separate(speaker_occupation, into = c("speaker_occupation", "remove"), sep = "/") %>% 
+  separate(speaker_occupation, into = c("speaker_occupation", "remove1"), sep = ",") %>% 
+  separate(speaker_occupation, into = c("speaker_occupation", "remove2"), sep = ";") %>% 
+  select(-remove, -remove1, -remove2) %>% 
+  mutate(speaker_occupation = str_to_lower(speaker_occupation)) %>% 
+  mutate(speaker_occupation = str_replace(speaker_occupation, "author", "writer"))
+
+```
+
+
+```{r}
+speaker %>% 
+  group_by(speaker_occupation) %>% 
+  summarize(number_talks = n()) %>% 
+  arrange(desc(number_talks)) %>% 
+  head(10) %>% 
+  pander::pander()
+```
+
+Based on the results in the table above, most speakers attending the TED talks are writer. Totally 107 writers came and gave TED Talks. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.
+
+```{r, message=FALSE, warning=FALSE}
+speaker %>% 
+  filter(speaker_occupation %in% c("writer", "artist", "designer", "journalist", "entrepreneur", "inventor", "architect", "psychologist", "neuroscientist", "physicist")) %>% 
+  group_by(speaker_occupation) %>% 
+  ggplot(aes(x = speaker_occupation, y = views)) +
+  geom_boxplot(aes(fill = speaker_occupation), alpha = .9) +
+  ylim(0,7.5e+06) +
+  labs(
+    title = "The distribution of viewers in ten most popular speaker occupation",
+    x = "speaker occupation",
+    y = "views"
+  )
+```
+
+Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by speakers with other occupations. In addtion, it can be discovered that there are always some extreme points for each occupation. It is easy to be understood because these talks may be given by the most famous or authoritative people in that field or the content of that talk is relevant to the hottest foucs at that time. 
+
+
+3) __Sentiment analysis__
+
 ```{r}
 ratings = ted %>%
   select(no, ratings) %>% 
@@ -197,10 +231,9 @@ ratings = ted %>%
   mutate(rat.words = sub(".*name': '(.*?)',.*", "\\1", ratings),
          rat.words = tolower(rat.words),
          rat.cnt = as.numeric(sub(".*'count': ", "", ratings))) %>%
-  select(-ratings) %>% print()
+  select(-ratings)
 ```
 
-(2) Perform sentiment analysis
 ```{r, message=FALSE}
 ### read the sentiment dataset from 'bing'
 bing_sent = get_sentiments("bing")
@@ -248,61 +281,23 @@ Here in the sentiment analysis, first we extract the sentiment words and the cor
 
 After obtaining the sentiment score, we start to make a plot showing the inspection sentiments and the number of viewers. We first coerce the *no* variable to factor and reorder it accorrding to the sentiment score and plot the realtionship between inspection number and sentiment score. However, since there are some observations with extremely large score, making the graph rather skewed, we try the cube root of the outcome (*sentiment*) and plot again to obtain the second graph. It can be seen that most of the ted talks have positive sentiment ratings, since only a small portion on the plot is in the negative side of y axis. Further, we find out that those ted talks with large number of viewers also receive high ratings, since the color yellow and green, which indicate a higher viewers, mostly appear at the right side of the plot, where the sentiment scores are high.
 
-(3) Compare top 10 talks picked by viewers and ratings respectively
 ```{r}
 top10_sent = rat_sent %>% 
   arrange(desc(sentiment)) %>% 
-  head(10) %>% print()
+  head(10) 
 
 top10_view = ted %>%
   arrange(desc(views)) %>% 
-  head(10) %>% print()
+  head(10) 
 
+match <- bind_cols(top10_largest_sentiment = top10_sent$no,
+                   top10_most_views = top10_view$no)
+match
 ```
 
-### Tidy the *speaker_occupation* variable
-```{r, warning = FALSE}
-speaker = ted %>% 
-  separate(speaker_occupation, into = c("speaker_occupation", "remove"), sep = "/") %>% 
-  separate(speaker_occupation, into = c("speaker_occupation", "remove1"), sep = ",") %>% 
-  separate(speaker_occupation, into = c("speaker_occupation", "remove2"), sep = ";") %>% 
-  select(-remove, -remove1, -remove2) %>% 
-  mutate(speaker_occupation = str_to_lower(speaker_occupation)) %>% 
-  mutate(speaker_occupation = str_replace(speaker_occupation, "author", "writer"))
+In this table, the top 10 TED talks with largest positive sentiment and most views are presented separately in two columns. With different rank though, there are five overlapped talks in the two columns, i.e. the talks 1,1347,838,678 and 202. To some extent, it verifies the foregoing speculation that the sentiment can reflect the popularity as well. More specifically, talks with large sentiment values, indicating that people give positive comments on those talks, tend to be popular with large amount of views.   
 
-```
-We know from the dataset that in speaker_occupation variable, one speaker might have more than one occupation. We also find that the first occupation is the main occupation of the speaker which can best represents their main focus, so we clean the speaker_occupation variablt to leave only the first occupation in the data set. Also, we discover that there exists writer and author in this variable and they represent the same occupation, so we replace the author with writer.
-
-### Find out the top ten speaker occupation
-```{r}
-speaker %>% 
-  group_by(speaker_occupation) %>% 
-  summarize(n = n()) %>% 
-  arrange(desc(n)) %>% 
-  head(10) %>% 
-  pander::pander()
-```
-
-From the above table, we find out that the most popular speaker occupation is writer, and totally 107 writers came and gave TED Talks. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.
-
-### Analysis on the distribution of viewer number in top ten speaker occupation
-```{r}
-speaker %>% 
-  filter(speaker_occupation %in% c("writer", "artist", "designer", "journalist", "entrepreneur", "inventor", "architect", "psychologist", "neuroscientist", "physicist")) %>% 
-  group_by(speaker_occupation) %>% 
-  ggplot(aes(x = speaker_occupation, y = views)) +
-  geom_boxplot(aes(fill = speaker_occupation), alpha = .9) +
-  ylim(0,7.5e+06) +
-  labs(
-    title = "The distribution of viewers in ten most popular speaker occupation",
-    x = "speaker occupation",
-    y = "views"
-  )
-```
-
-Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by others. We also find that each occupation has some extreme points. This is easy to understand because these talks may be given by the most famous people in that area or the topic is most focus of attention.  
-
-4) Linear model building
+4) __Linear model building__ 
 ```{r categarize the year variable}
 ted.lm <- select(rat_sent, no, duration, languages, num_speaker, year, views, sentiment) %>%
   mutate(year = as.numeric(year),
@@ -316,6 +311,14 @@ summary(lm.result)
 broom::tidy(lm.result)
 ```
 
-In this model, we set the arm "before 2010" as referece from the categorical variable "year". From the linear modelling result, it can be discovered that only the estimated coefficients for the number of speaker ("num_speaker") and the categorical arm "between 2010 and 2015" are not significant at 0.05 significance level due to the large p-value. Therefore, the "num_speaker" is probably not associated with the outcome (number of views). Since the arm "between 2010 and 2015" is one level within the categorical variable, it cannot be excluded from the model. However, compared with reference, the arm "after 2015" presents significant postive estimate, indicating the positive mean difference of views after 2015 relative to years before 2010. In other words, TED talks published after 2015 are generally more popular than those  published before 2010. At the same time, it can be noticed that language and duration are also strongly associated with the number of views. Specifically, in terms of "languages", the mean number of views will increase by 5.835e^4 as the number of languages in which the talk is available increases by 1 adjusted by other covariates. As expected, sentiment plays an important role in the model, implying that it is the reflection of popularity for a TED talk as well. Basically, the adjusted R^2 is around 60%, suggesting 60% variation in the number of views can be explained by the variation in those covariates. This values is good enough to conlcude the the points of outcome and predictors are well fitted on the linear model. 
+In this model, we set the arm "before 2010" as referece from the categorical variable "year". From the linear modelling result, it can be discovered that only the estimated coefficients for the number of speaker ("num_speaker") and the categorical arm "between 2010 and 2015" are not significant at 0.05 significance level due to the large p-value. Therefore, the "num_speaker" is probably not associated with the outcome (number of views). Since the arm "between 2010 and 2015" is one level within the categorical variable, it cannot be excluded from the model. However, compared with reference, the arm "after 2015" presents significant postive estimate, indicating the positive mean difference of views after 2015 relative to years before 2010. In other words, TED talks published after 2015 are generally more popular than those  published before 2010. At the same time, it can be noticed that language and duration are also strongly associated with the number of views. Specifically, in terms of "languages", the mean number of views will increase by 58350 as the number of languages in which the talk is available increases by 1 adjusted by other covariates. As expected, sentiment plays an important role in the model, implying that it is the reflection of popularity for a TED talk as well. Basically, the adjusted R-square is around 60%, suggesting 60% variation in the number of views can be explained by the variation in those covariates. This values is good enough to conlcude the the points of outcome and predictors are well fitted on the linear model. 
 
 ### Conclusion
+In this study, the question of why a TED talk becomes popular is explained by analyzing the association between the popularity, represented by the number of views, and other variables provided in the dataset. According to the results, the topic, speaker, duration of a TED talk and the number of language available are all concretely connected with the popularity of that talk. Serveral topics like technology, business and culture are prone to more views. The speakers and their occupations also play important roles in drawing attention of population, among which psychologists, writers, scientists and entrepreneur are most popular speaker occupations. It is also revealed that the language available for a TED talk is of importance in its popularity. Therefore, it can be suggested to have more languages available for a talk in order to improve its popularity. At last,  popularity for TED talks through time are compared, which reveals the truth that increasing poeple are joining in this sharing talks of thoughts of mind so far and the "ideas worth spreading" are truly propagating.
+
+### Related links to the 5 most popular TED talks obtained in this study
+* [`r ted.data$name[1]`](`r ted.data$url[1]`)
+* [`r ted.data$name[1347]`](`r ted.data$url[1347]`)
+* [`r ted.data$name[678]`](`r ted.data$url[678]`)
+* [`r ted.data$name[838]`](`r ted.data$url[838]`)
+* [`r ted.data$name[453]`](`r ted.data$url[453]`)
