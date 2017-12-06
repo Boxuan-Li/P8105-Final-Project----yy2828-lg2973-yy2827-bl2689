@@ -1,0 +1,11 @@
+name: "Webpage for Final Project"
+output_dir: "."
+navbar:
+  title: "Home"
+  right:
+    - text: "About"
+      href: about.html
+
+
+output:
+  html_document

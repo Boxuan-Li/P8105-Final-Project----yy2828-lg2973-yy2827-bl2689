@@ -1,0 +1,9 @@
+---
+title: "About This Project"
+---
+
+## P8105 Data Science Final Project
+
+# Why is a TED Talk Popular?
+
+This project focuses on exploration of factors that may affect the popularity of a TED talk. The original dataset is hosted in the official website TED.com, which can be viewed and downloaded through this [link](./data/TED.csv). 
