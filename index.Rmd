@@ -320,7 +320,7 @@ library("vembedr")
 
 You may interested in the 5 most popular TED talks:
 
-**[`r ted.data$name[1]`]**
+* **`r ted.data$name[1]`**
 
 ```{r}
 embed_url("https://youtu.be/KoeFETjmUP4")
