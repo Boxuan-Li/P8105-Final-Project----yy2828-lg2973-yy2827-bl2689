@@ -4,8 +4,6 @@ author: "Lu Gan(lg2973), Yangwei Yan(yy2828), Yunqiu Yao(yy2827), Boxuan Li(bl26
 output: 
   html_document:
     code_folding: hide
-    toc: true
-    toc_float: true
 ---
 
 ```{r, include=FALSE}
@@ -13,7 +11,6 @@ knitr::opts_chunk$set(
   collapse = FALSE,
   warning = FALSE,
   message = FALSE,
-  echo = FALSE,
   fig.width = 8,
   fig.asp = .6,
   out.width = "90%"
@@ -55,7 +52,7 @@ ted = ted %>%
   separate(published_date, into = c("year", "month", "day"), sep = "-")
 ```
 
-# Introduction
+### Introduction
 
 TED (Technology, Entertainment, Design) is an organization that posts talks online for free dissemination. TED was founded in 1984 as a conference and has developed a lot so far. And nowadays, it has become the symbol of idea gathering, rooted into our life everywhere around. Even though one barely hears of the TED talk, its famous slogan of "ideas worth spreading" and the typical starry sky at the start of each talk should be probably noticed. It is always inspiring to enjoy a TED talk after work or study in our daily life and every fan of TED talk must have his or her own evaluation criteria to rate TED talks with multifarious topics. Hence, these talks, full of wisdom, gain abundant reviews and comments from viewers, which can serve as implication of both popularity of the talks and those viewers' interests.
 
@@ -89,12 +86,30 @@ wordcloud(words = n_topic$topic,
           colors = brewer.pal(8, "Dark2"))
 ```
 
-In this study, the collected dataset that covers the overall information about `r dim(ted.data)[1]` TED talks, hosted on the official TED.com website from June 26th, 2006 to September 21st, 2017. In this dataset, there are `r dim(ted.data)[2]` variables, including number of views, number of comments, description of each talk, etc.
+In this study, the collected dataset that covers the overall information about `r dim(ted.data)[1]` TED talks, hosted on the official TED.com website from June 26th, 2006 to September 21st, 2017. In this dataset, there are `r dim(ted.data)[2]` variables, including number of views, number of comments, description of each talk, etc. Key variables are summarized as follows,
+
+* name : The official name of the TED Talk. Includes the title and the speaker;
+* title : The title of the talk;
+* description : A blurb of what the talk is about;
+* main_speaker : The first named speaker of the talk;
+* speaker_occupation : The occupation of the main speaker;
+* num_speaker : The number of speakers in the talk;
+* duration : The duration of the talk in seconds;
+* event : The TED/TEDx event where the talk took place;
+* film_date : The Unix timestamp of the filming;
+* published_date : The Unix timestamp for the publication of the talk on TED.com;
+* comments : The number of first level comments made on the talk;
+* tags : The themes associated with the talk;
+* languages : The number of languages in which the talk is available;
+* ratings : A stringified dictionary of the various ratings given to the talk (inspiring, fascinating, jaw dropping, etc.);
+* related_talks : A list of dictionaries of recommended talks to watch next;
+* url : The URL of the talk;
+* views : The number of views on the talk.
 
 Based on the dataset, there are some points expected to be explored in this study. Firstly, this report will include basic description and operation of several remarkable variables among all 17. For instance, in the "tag" varibale, information about the topic (or theme) of that talk can be extracted, which can lay a foundation for further investigation of the association between the topic and popularity of a talk. In addition, the development of TED over time is anticipated to be presented by this means. Secondly, this report will review the connection of the popularity of a TED talk with other varibales. What makes a TED talk popular is the main focus in this study.
 
 
-# Methods
+### Methods
 
 In this study, we follow a step-by-step analysis to reveal the association between the popularity and other variables. And the popularity of one TED talk is represented by the number of views ("views" variable). And most analyses involve the operation on strings within the dataset.
 
@@ -106,7 +121,8 @@ In this study, we follow a step-by-step analysis to reveal the association betwe
 
 4) After foregoing anaylysis, we would like to take other covariates that are not invovled into consideration. Hence, we will further explore the linear realtionship between the number of views for each talk and other predictors including duration, languages translated, years, number of speakers and sentiment ratings to show factors that may affect the popularity. In this case, "year" is categorized into three arms, "before 2010" (2006-2009), "between 2010 and 2015" (2010-2014) and "after 2015" (2015-2017) and the first arm will serve as reference level.
 
-# __Topic__ and __Popularity__
+### Results and Analysis
+1) The association between __Topic__ and __Popularity__
 
 In this section, we try to find out how diverse topics affect the popularity of TED talks.  
 
@@ -175,7 +191,7 @@ The first figure above shows how many videos talking about top 10 topics in each
 
 The second figure above shows the trends in the share of top 10 topics along the years. We can see that culture related talks have been viewed most in 2006 when the first six TED Talks were posted online. However, talks on culture have witnessed a dip, decreasing steadily since 2013. In contrast, the topic innovation and health are drawing more and more attention along the years.
 
-# __Speaker__ and __Popularity__.
+2) The association between __Speaker__ and __Popularity__.
 ```{r, warning = FALSE}
 speaker = ted %>% 
   separate(speaker_occupation, into = c("speaker_occupation", "remove"), sep = "/") %>% 
@@ -233,7 +249,7 @@ ggplotly(gg_views_occ) %>%
 
 Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by speakers with other occupations. In addtion, it can be discovered that there are always some extreme points for each occupation. It is easy to be understood because these talks may be given by the most famous or authoritative people in that field or the content of that talk is relevant to the hottest foucs at that time. 
 
-# __Sentiment analysis__
+3) __Sentiment analysis__
 
 ```{r}
 ratings = ted %>%
@@ -313,7 +329,7 @@ match
 
 In this table, the top 10 TED talks with largest positive sentiment and most views are presented separately in two columns. With different rank though, there are five overlapped talks in the two columns, i.e. the talks 1,1347,838,678 and 202. To some extent, it verifies the foregoing speculation that the sentiment can reflect the popularity as well. More specifically, talks with large sentiment values, indicating that people give positive comments on those talks, tend to be popular with large amount of views.   
 
-# __Linear model building__ 
+4) __Linear model building__ 
 ```{r categarize the year variable}
 ted.lm = select(rat_sent, no, duration, languages, num_speaker, year, views, sentiment) %>%
   mutate(year = as.numeric(year),
@@ -351,6 +367,3 @@ In this study, the question of why a TED talk becomes popular is explained by an
 * [`r ted.data$name[678]`](`r ted.data$url[678]`)
 * [`r ted.data$name[838]`](`r ted.data$url[838]`)
 * [`r ted.data$name[453]`](`r ted.data$url[453]`)
-
-
-For more information, you can access to the [link].(Final_Project.html)
