@@ -5,6 +5,8 @@ navbar:
   right:
     - text: "About"
       href: about.html
+    - text: "Dataset"
+      href: dataset.html
 
 
 output:
