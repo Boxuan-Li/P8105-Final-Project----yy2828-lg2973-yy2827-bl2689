@@ -29,4 +29,5 @@ There are 17 variables in this dataset:
 * `url`: The URL of the talk.
 * `views`: The number of views on the talk.
 
-
+### Dataset source
+You can download the original dataset [here](./data/TED.csv).

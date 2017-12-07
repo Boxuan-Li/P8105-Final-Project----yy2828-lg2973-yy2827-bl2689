@@ -4,8 +4,8 @@ title: "Contact"
 
 __Contributors__:
 
-* Boxuan Li (Email: <bl2689@cumc.columbia.edu>)
-* Yunqiu Yao (Email: <yy2827@cumc.columbia.edu>)
-* Yangwei Yan (Email: <yy2828@cumc.columbia.edu>)
-* Lu Gan (Email: <lg2973@cumc.columbia.edu>)
+* Boxuan Li (<bl2689@cumc.columbia.edu>)
+* Yunqiu Yao (<yy2827@cumc.columbia.edu>)
+* Yangwei Yan (<yy2828@cumc.columbia.edu>)
+* Lu Gan (<lg2973@cumc.columbia.edu>)
 

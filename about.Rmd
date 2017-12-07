@@ -10,11 +10,11 @@ options(repos="https://cran.rstudio.com" )
 ```
 
 ```{r package installing, message=FALSE, warning=FALSE}
-install.packages(c("tidyverse", "janitor", "ggthemes","ggridges","stringr","forcats","tidytext","viridis","anytime","wordcloud","plotly"))
+install.packages(c("tidyverse", "janitor", "ggthemes","ggridges","stringr","forcats","tidytext","viridis","anytime","wordcloud","plotly","vembedr"))
 ```
 
 Versions of key packages: 
 
 ```{r version of packages, warning=FALSE}
-devtools::session_info(c("tidyverse", "janitor", "ggthemes","ggridges","stringr","forcats","tidytext","viridis","anytime","wordcloud","plotly"))
+devtools::session_info(c("tidyverse", "janitor", "ggthemes","ggridges","stringr","forcats","tidytext","viridis","anytime","wordcloud","plotly",'vembedr'))
 ```
