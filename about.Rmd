@@ -1,9 +1,20 @@
 ---
 title: "About This Project"
 ---
+This is the final project of the course "P8105 Data Science", created by Boxuan Li, Lu Gan, Yangwei Yan, Yunqiu Yao. It focuses on the analysis of popularity of TED talks. And a website that summarizes the project is built, hosted on the GitHub.
 
-## P8105 Data Science Final Project
+In this project, we actively use the Rstudio (version 1.1.383) to facilitate the data operation and result anaylses. The code to install the packages follows, and version information about each of these packages used in this project are presented at the bottom of this page.
 
-# Why is a TED Talk Popular?
+```{r, include=FALSE}
+options(repos="https://cran.rstudio.com" )
+```
 
-This project focuses on exploration of factors that may affect the popularity of a TED talk. The original dataset is hosted in the official website TED.com, which can be viewed and downloaded through this [link](./data/TED.csv). 
+```{r package installing, message=FALSE, warning=FALSE}
+install.packages(c("tidyverse", "janitor", "ggthemes","ggridges","stringr","forcats","tidytext","viridis","anytime","wordcloud","plotly"))
+```
+
+Versions of key packages: 
+
+```{r version of packages, warning=FALSE}
+devtools::session_info(c("tidyverse", "janitor", "ggthemes","ggridges","stringr","forcats","tidytext","viridis","anytime","wordcloud","plotly"))
+```
