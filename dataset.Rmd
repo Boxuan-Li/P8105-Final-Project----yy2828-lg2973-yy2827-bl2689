@@ -5,7 +5,7 @@ output:
 ---
 
 ### Context
-The data we use in the study are about all audio-video recordings of TED Talks uploaded to the official TED.com website until September 21st, 2017. It contains information about all talks including number of views, number of comments, descriptions, speakers and titles.
+The data we use in the study are about all audio-video recordings of TED Talks uploaded to the official TED.com website from June 26th, 2006 to September 21st, 2017. It contains information about all talks including number of views, number of comments, descriptions, speakers and titles.
 
 
 ### Data description

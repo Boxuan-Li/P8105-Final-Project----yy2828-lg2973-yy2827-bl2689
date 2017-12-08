@@ -37,7 +37,7 @@ theme_update(legend.position = "bottom")
 ```
 
 ```{r}
-embed_youtube("Zq1LeiWdu_A", width = 560, height = 420) %>%
+embed_youtube("Zq1LeiWdu_A", width = 700, height = 560) %>%
   div(class = "vembedr") %>%
   div(align = "center")
 ```
@@ -102,12 +102,12 @@ In this study, the collected dataset that covers the overall information about `
 
 ### Objectives
 
-In this study, we try to explore the connection of the popularity of a TED talk with other varibales and answer a few questions that may explain what makes a TED talk popular:
+In this study, we try to explore the connection of popularity of a TED talk with other varibales and answer a few questions that may explain what makes a TED talk popular:
 
 1. What are the most popular TED topics? How did the popular topics change over time?       
 2. Who are the most popular TED speakers? What are the occupations of popular TED speakers? Do some professions tend to attract a larger number of viewers?
-3. How the ratings of viewers look like? How many positive and negative words in the ratings?
-4. Is that possible to build a model to illustrate the relationship between the popularity of a TED talk and other varibales?
+3. What are the ratings of viewers like? How many positive and negative words are there in the ratings?
+4. Is it possible to build a model to illustrate the relationship between the popularity of a TED talk and some potential covariates?
 
 
 ## Methods
@@ -124,7 +124,7 @@ In this study, we follow a step-by-step analysis to reveal the association betwe
 
 ## Results and Analysis
 
-### 1) Topic vs. Popularity
+### 1) Popularity vs. Topic
 
 ```{r}
 ## filter top 10 topics with the most talks 
@@ -179,7 +179,8 @@ ggplotly(gg_talks_years) %>%
 The figure above shows how many videos talking about top 10 topics in each year. The topic "TEDx" are frequently mentioned in 2012. TEDx is a program supporting independent organizers who want to create a TED-like event in their own community. In 2012, a week-long event-TEDx Summit was held by the Doha Film Institute, the inaugural event gathered TEDx organizers from around the world for workshops, talks and cultural activities. It may result in the increase of TEDx talks in 2012. 2016 also witnesses a peak in the increase of all the talks. There are several global events held in 2016, including "TED 2016 Dream" in Canada, which is a conference about ideas.
 
 
-### 2) Speaker vs. Popularity
+### 2) Popularity vs. Speaker
+
 ```{r, warning = FALSE}
 speaker = ted %>% 
   separate(speaker_occupation, into = c("speaker_occupation", "remove"), sep = "/") %>% 
@@ -210,7 +211,7 @@ speaker %>%
 
 From the above table, we find out that statistician Hans Rosling gave most TED Talks among all the TED speakers. As a professor of global health at Sweden's Karolinska Institute, his current work focuses on dispelling common myths about the so-called developing world. The range of the number of TED Talks given by top ten speaker is from 5 to 9, probably indicates that these speakers are very popular among viewers and they give TED Talks frequently.
 
-Based on statistical results, we find that top ten speaker occupations are writer, artist, designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. 
+Based on statistical results, we find that top ten speaker occupations are _writer, artist, designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist_. 
 
 ```{r, message=FALSE, warning=FALSE}
 gg_views_occ = speaker %>% 
@@ -228,7 +229,7 @@ ggplotly(gg_views_occ) %>%
 
 From the resulted boxplot, we find that psychologist has the highest median, indicating that TED Talks given by psychologist are more popular and attract more viewers than TED Talks given by speakers with other occupations. In addtion, it can be discovered that there are always some extreme points for each occupation. It is easy to be understood because these talks may be given by the most famous or authoritative people in that field or the content of that talk is relevant to the hottest foucs at that time. 
 
-### 3) Sentiment analysis
+### 3) Sentiment Analysis
 
 Here in the sentiment analysis, we extract the sentiment words and the corresponding counts for each observation, and define the words as 'positive' or 'negative' accroding to [Bing sentiment analysis](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html). Then we calculate sentiment score for each observation as difference of the sum of positive and negative counts. The visualization of the distribution of sentiment follows with a plot, showing the distribution of sentiment score. Since the plot with original sentiment score on y-axis are highly skewed, we transform the score to its cube root to help visualize.
 
@@ -279,9 +280,9 @@ ggplotly(gg_trans_sent) %>%
 
 It can be seen that most of the ted talks have positive sentiment ratings, since only a small portion on the plot is in the negative side of y axis. Further, we find out that those ted talks with large number of viewers also receive high ratings, since the color yellow and green, which indicate a higher viewers, mostly appear at the right side of the plot, where the sentiment scores are high.
 
-### 4) Linear model building
+### 4) Linear Regression Model
 
-In this model, we set the arm "before 2010" from the categorical variable "year" as the reference. From the linear modelling result, it can be discovered that only the estimated coefficients for the number of speaker ("num_speaker") is not significant at 0.05 significance level due to the large p-value. Therefore, we can conclude that there is no significant linear association between the outcome (number of views) and the number of speakers, adjusted for other covariates in the model. Then we drop the *num_speaker* variable and refit the model.
+In this study, we tried to fit *sentiment, year(categorized), duration, languages and num_speaker* into the linear model. The variable *num_speaker* turns out to be nonsignificantly associated with the number of views in the first round of model building thus it is excluded from the final model.
 
 ```{r}
 ted.lm = select(rat_sent, no, duration, languages, num_speaker, year, views, sentiment) %>%
@@ -303,12 +304,18 @@ update(model1, .~. -num_speaker) %>%
 From the table above, the final model we conclude for the study is \[Views = -1.13*10^6 + 625.1 * Sentiment + 5.62*10^4 * I\{Year \ between \ 2010 \ and \ 2015\}\\
 + 4.76*10^5 * I\{Year \ after \ 2015\}  + 369.4 * Duration + 5.83*10^4 * Languages\]
 
-As for the variable *year*, the arm "after 2015" presents significant postive estimate, indicating the positive mean difference of number of views for TED talks published after 2015 compared with the number of views for those published before 2010. In other words, TED talks published after 2015 are more popular than those published before 2010. At the same time, it can be noticed that language and duration are also strongly associated with the number of views. Specifically, in terms of "languages", the mean number of views will increase by 58350 as the number of languages in which the talk is available increases by 1 adjusted for other covariates. As expected, sentiment plays an important role in the model, implying that it is exactly reflection of popularity for TED talks to some extent. Basically, the adjusted R-square is around 60%, suggesting 60% variation in the number of views can be explained by the variation in those covariates. This values is good enough to conlcude that points representing the outcome (number of views) and predictors are well fitted on the linear model. 
+As for the variable *year*, the arm "after 2015" presents significant postive estimate, indicating the positive mean difference of number of views for TED talks published after 2015 compared with the number of views for those published before 2010. In other words, TED talks published after 2015 are more popular than those published before 2010. At the same time, it can be noticed that language and duration are also strongly associated with the number of views. As expected, sentiment plays an important role in the model, implying that it is exactly reflection of popularity for TED talks to some extent. Basically, the adjusted R-square for the model is over 50%, suggesting more than half of variation in the number of views can be explained by the variation in those covariates. This values is good enough to conlcude the goodness of fitting. 
 
 ## Conclusion
-In this study, the question of why a TED talk becomes popular is explained by analyzing the association between the popularity, represented by the number of views, and other variables provided in the dataset. According to the results, the topic, speaker, duration of a TED talk and the number of language available are all concretely connected with the popularity of that talk. Serveral topics like technology, business and culture are prone to more popularity. The speakers and their occupations also play important roles in drawing attention of population, among which psychologists, writers, scientists and entrepreneur are most popular speaker occupations. It is also revealed that the language available for a TED talk is of importance in its popularity. Therefore, it can be suggested to have more languages available for a talk in order to improve its popularity. At last,  popularity for TED talks through time are compared, which reveals the truth that increasing poeple are joining in this sharing talks of thoughts of mind so far and the "ideas worth spreading" are truly propagating.
+In this study, the question of why a TED talk becomes popular is illustrated by analyzing the association between the popularity, represented by the number of views, and other variables provided in the dataset. 
 
-## Related links
+* Topic is concretely connected with the popularity of that talk. Serveral topics like technology, business and culture are prone to more popularity
+* The speakers and their occupations play important roles in drawing attention of population, among which psychologist, writer, neuroscientist and entrepreneur are most popular speaker occupations.
+* The ratings from viewers can reflect the popularity of TED talks to some extent.
+* Language available for a TED talk is also of importance in its popularity based on the linear regression model. 
+* Increasing poeple are joining in this sharing of thoughts of mind over time and the "ideas worth spreading" are truly propagating.
+
+## Related Links
 
 You may interested in the 5 most popular TED talks:
 
@@ -323,4 +330,5 @@ embed_url("https://youtu.be/KoeFETjmUP4")
 * [`r ted.data$name[838]`](`r ted.data$url[838]`)
 * [`r ted.data$name[453]`](`r ted.data$url[453]`)
 
+## Original Report
 **For more details, you can access to our original report [here](Final_Project.html)**.
