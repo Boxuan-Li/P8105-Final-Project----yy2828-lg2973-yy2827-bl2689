@@ -210,7 +210,7 @@ speaker %>%
     y = "number of talks")
 ```
 
-From the above table, we find out that statistician Hans Rosling gave most TED Talks among all the TED speakers, totally 9 Talks. As a professor of global health at Sweden's Karolinska Institute, his current work focuses on dispelling common myths about the so-called developing world, which (he points out) is no longer worlds away from the West. Then it followed by biologist Juan Enriquez, who gave 7 Talks. The range of the number of TED Talks given by top ten speaker is from 5 to 9, probably indicates that these speakers are very popular among viewers and they give TED Talks frequently.
+From the above table, we find out that statistician Hans Rosling gave most TED Talks among all the TED speakers. As a professor of global health at Sweden's Karolinska Institute, his current work focuses on dispelling common myths about the so-called developing world. The range of the number of TED Talks given by top ten speaker is from 5 to 9, probably indicates that these speakers are very popular among viewers and they give TED Talks frequently.
 
 ```{r}
 speaker %>% 
@@ -221,7 +221,7 @@ speaker %>%
   pander::pander()
 ```
 
-Based on the results in the table above, most speakers attending the TED talks are writer. Totally 107 writers came and gave TED Talks. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.
+Based on the results in the table above, most speakers attending the TED talks are writers. Then comes to artist and designer, journalist, entrepreneur, inventor, architect, psychologist, neuroscientist and physicist. We are surprised to find out that the top four occupations are all about arts, indicating that people who work with arts are more willing to give a TED Talk and their talks might attract more viewers.
 
 ```{r, message=FALSE, warning=FALSE}
 gg_views_occ = speaker %>% 
@@ -237,7 +237,7 @@ ggplotly(gg_views_occ) %>%
          xaxis=list(title="Speaker occupation"))
 ```
 
-Since there are several extreme points in this polt making the plots too compacted and hard to observe the distribution of each speaker occupation, we limit the range of y axis to make the plot more explicit. From the resulted boxplot, we find that physicist has the lowest median while psychologist has the highest median, indicating that TED Talks given by physicist are more popular and attract more viewers than TED Talks given by speakers with other occupations. In addtion, it can be discovered that there are always some extreme points for each occupation. It is easy to be understood because these talks may be given by the most famous or authoritative people in that field or the content of that talk is relevant to the hottest foucs at that time. 
+From the resulted boxplot, we find that psychologist has the highest median, indicating that TED Talks given by psychologist are more popular and attract more viewers than TED Talks given by speakers with other occupations. In addtion, it can be discovered that there are always some extreme points for each occupation. It is easy to be understood because these talks may be given by the most famous or authoritative people in that field or the content of that talk is relevant to the hottest foucs at that time. 
 
 #### 3) Sentiment analysis
 
