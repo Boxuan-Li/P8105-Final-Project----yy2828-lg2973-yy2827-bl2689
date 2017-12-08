@@ -94,10 +94,13 @@ wordcloud(words = n_topic$topic,
 In this study, the collected dataset that covers the overall information about `r dim(ted.data)[1]` TED talks from June 26th, 2006 to September 21st, 2017, is hosted on the official TED.com website. The detailed information about the original dataset can be referred to the "Dataset" page on the navigation bar.
 
 ### Objectives
-There are some points expected to be explored in this study.
 
-* Basic description and operation on variables within the dataset. 
-* Review of the connection of the popularity of a TED talk with other varibales and exploration of what makes a TED talk popular.
+In this study, we try to explore the connection of the popularity of a TED talk with other varibales and answer a few questions that may explain what makes a TED talk popular:
+
+1. What are the most popular TED topics? How did the popular topics change over time?       
+2. Who are the most popular TED speakers? What are the occupations of popular TED speakers? Do some professions tend to attract a larger number of viewers?
+3. How the ratings of viewers look like? How many positive and negative words in the ratings?
+4. Is that possible to build a model to illustrate the relationship between the popularity of a TED talk and other varibales?
 
 
 ## Methods
