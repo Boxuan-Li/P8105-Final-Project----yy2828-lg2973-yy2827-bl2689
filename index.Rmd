@@ -136,6 +136,24 @@ ggplotly(gg_top10) %>%
 
 TED includes talks on `r count(distinct(n_topic))` different topics. The figure above demonstrates the most 10 talked topics. Obviously, *Technology* is the most talked topic with `r n_topic[1,2]` talks.
 
+```{r, warning=FALSE}
+## Visualize the distribution of views for top 10 topics.
+gg_talks_topics = ted_topic %>%
+  filter(ted_topic$topic %in% top10_topic$topic) %>%
+  mutate(topic = fct_reorder(topic, views)) %>%
+  ggplot(aes(x = topic, y = views, fill = topic)) +
+    geom_violin() +
+    ylim(0, 5e+6) +
+    stat_summary(fun.y = median, geom = "point", size = 2)
+
+ggplotly(gg_talks_topics) %>% 
+  layout(xaxis=list(title = "Topic"),
+         yaxis=list(title = "Number of views for each video"),
+         title="Views for the top10 topics")
+```
+
+This figure shows the distribution of views for top 10 topics. It can be found that all the distributions of views are heavily right skewed, which indicates that some of the talks are extremely popular. Among the most talked 10 topics, culture and business had the highest median number of views. Although TED talks about technology the most, audience show more interest in culture or business related talks.
+
 ```{r}
 ## Visualize the number of TED topics through the years.
 gg_talks_years = ted_topic %>%
