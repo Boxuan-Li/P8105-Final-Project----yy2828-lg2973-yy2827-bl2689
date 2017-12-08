@@ -29,11 +29,18 @@ library(viridis)
 library(anytime)
 library(wordcloud)
 library(plotly)
+library(htmltools)
+library(vembedr)
 
 theme_set(theme_bw())
 theme_update(legend.position = "bottom")
 ```
 
+```{r}
+embed_youtube("Zq1LeiWdu_A", width = 560, height = 420) %>%
+  div(class = "vembedr") %>%
+  div(align = "center")
+```
 
 ```{r Read and clean, message=FALSE, warning=FALSE, include = FALSE}
 ## Read and basically clean the dataset
@@ -302,11 +309,6 @@ As for the variable *year*, the arm "after 2015" presents significant postive es
 In this study, the question of why a TED talk becomes popular is explained by analyzing the association between the popularity, represented by the number of views, and other variables provided in the dataset. According to the results, the topic, speaker, duration of a TED talk and the number of language available are all concretely connected with the popularity of that talk. Serveral topics like technology, business and culture are prone to more popularity. The speakers and their occupations also play important roles in drawing attention of population, among which psychologists, writers, scientists and entrepreneur are most popular speaker occupations. It is also revealed that the language available for a TED talk is of importance in its popularity. Therefore, it can be suggested to have more languages available for a talk in order to improve its popularity. At last,  popularity for TED talks through time are compared, which reveals the truth that increasing poeple are joining in this sharing talks of thoughts of mind so far and the "ideas worth spreading" are truly propagating.
 
 ## Related links
-
-```{r include=FALSE}
-library("htmltools")
-library("vembedr")
-```
 
 You may interested in the 5 most popular TED talks:
 
